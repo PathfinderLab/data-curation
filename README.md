@@ -73,8 +73,8 @@ python csv_file_generation.py \
 ...
 
 folder                                  file  
-0  PIT-01-BROP-00001  PIT-01-BROP-00001-IMH001  
-1  PIT-01-BRBX-00001  PIT-01-BRBX-00001-IMI002  
+0  PIT-01-BROP-00001  PIT-01-BROP-00001-IMH-001.svs  
+1  PIT-01-BRBX-00001  PIT-01-BRBX-00001-IMI-002.svs
 ...
 ```
 
@@ -117,8 +117,8 @@ PIT_project/
       ├── PIT_anonymized
       |    ├── PIT0
       |    |     ├── PIT-01-BROP-00001
-      |    |     |    ├── PIT-01-BROP-00001-IMH001.svs
-      |    |     |    ├── PIT-01-BROP-00001-IMH002.svs
+      |    |     |    ├── PIT-01-BROP-00001-IMH-001.svs
+      |    |     |    ├── PIT-01-BROP-00001-IMH-002.svs
       |    |     |    ├── PIT-01-BROP-00001-TXG.txt
       |    |     |    └── PIT-01-BROP-00001-TXM.txt
       |    |     ├── PIT-01-BROP-00002
