@@ -1,8 +1,8 @@
 # PIT Data Curation Code
 This code was used for curating the PIT data. The PIT dataset consists of one or more WSIs per patient, along with paired data such as gross reports and micro reports. The code is mainly divided into two tasks: data pseudonymization and data anonymization.
 
-## Pseudonymization of PIT Data
-Pseudonymization of the PIT data was performed for the following attributes: organ, hospital, procedure, and modality. An example of this process is as here:
+## 1. Pseudonymization of PIT Data
+Pseudonymization of the PIT data was performed for the following attributes: organ, hospital, procedure, and modality. An example of this process is [here](#1-pseudonymization):
 
 | Organ                                  | code |
 |--------------------------------------|--------|
@@ -37,7 +37,7 @@ Pseudonymization of the PIT data was performed for the following attributes: org
 | IHC                                  | IMI    |
 | SS                                   | IMS    |
 
-## Anonymization Process
+## 2. Anonymization Process
 The anonymization process includes the following steps:
 
 - `delete_associated_image(slide_path, 'label')`: Removes personal information labels from WSIs.
