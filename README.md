@@ -122,7 +122,7 @@ PIT_project/
       |    |     |    ├── PIT-01-BROP-00001-TXG.txt
       |    |     |    └── PIT-01-BROP-00001-TXM.txt
       |    |     ├── PIT-01-BROP-00002
-      |    |     |    ├── PIT-01-BROP-00002-IMH001.svs
+      |    |     |    ├── PIT-01-BROP-00002-IMH-001.svs
       |    |     |    ├── PIT-01-BROP-00002-TXG.txt
       |    |     |    └── PIT-01-BROP-00002-TXM.txt
           ...
