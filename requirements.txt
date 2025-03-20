@@ -1,0 +1,4 @@
+openslide-python
+tifffile
+pandas
+tqdm

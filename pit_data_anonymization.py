@@ -1,6 +1,6 @@
-import tifffile, struct, argparse, os, glob
-import pandas as pd
 from tqdm.auto import tqdm
+import pandas as pd
+import tifffile, struct, argparse, os, glob, openslide
 
 def delete_associated_image(slide_path, image_type):
     # THIS WILL ONLY WORK FOR STRIPED IMAGES CURRENTLY, NOT TILED
@@ -117,50 +117,61 @@ def replace_description(slide_path,new_name):
     t.pages[0].tags['ImageDescription'].overwrite(t.pages[0].description.replace(f_name[0],new_name))
     t.pages[1].tags['ImageDescription'].overwrite(t.pages[1].description.replace(f_name[0],new_name))
     fp.close()
-    
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--slide_path',type=str)
+    parser.add_argument('--slide_base',type=str)
     parser.add_argument('--csv_path',type=str)
     parser.add_argument('--anonymized_split',type=str)
     args = parser.parse_args()
-    slide_path = args.slide_path
+    slide_base = args.slide_base
     csv_path = args.csv_path
     anonymized_split= args.anonymized_split
 
-    slide_paths = glob.glob(os.path.join(slide_path,'PIT*','*','*.svs'))
+    slide_paths = glob.glob(os.path.join(slide_base,'PIT*','*','*.svs'))
+    print(f'Found {len(slide_paths)} slides')
     df_anonymized = pd.read_csv(csv_path)
     
     for i, slide_path in enumerate(tqdm(slide_paths,total=len(slide_paths))):
-        try:
-            # dir, name setting
-            origin_name = slide_path.split('/')[-1]
-            origin_dir = '/' + df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'src_folder'].iloc[0] + '/'
-            origin_split = '/' + slide_path.split('/')[-4] + '/'
-            anonymized_name = df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'file'].iloc[0]
-            anonymized_dir = '/' + df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'folder'].iloc[0] + '/'
-            anonymized_f_path = slide_path.replace(origin_split, anonymized_split).replace(origin_name, anonymized_name).replace(origin_dir, anonymized_dir)
-            anonymized_f_dir = '/'.join(anonymized_f_path.split('/')[:-1])
-            os.makedirs(anonymized_f_dir, exist_ok=True)
-            gross_name = anonymized_f_dir + '/' + df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'folder'].iloc[0] + '-TXG.txt'
-            micro_name = anonymized_f_dir + '/' + df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'folder'].iloc[0] + '-TXM.txt'
+        origin_name = slide_path.split('/')[-1]
+        if len(df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'file']) > 0:
+            try:
+                # dir, name setting
+                origin_name = slide_path.split('/')[-1]
+                origin_dir = '/' + df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'src_folder'].iloc[0] + '/'
+                origin_split = '/' + slide_path.split('/')[-4] + '/'
+                anonymized_name = df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'file'].iloc[0]
+                anonymized_dir = '/' + df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'folder'].iloc[0] + '/'
+                anonymized_f_path = slide_path.replace(origin_split, anonymized_split).replace(origin_name, anonymized_name).replace(origin_dir, anonymized_dir)
+                anonymized_f_dir = '/'.join(anonymized_f_path.split('/')[:-1])
+                os.makedirs(anonymized_f_dir, exist_ok=True)
+                gross_name = anonymized_f_dir + '/' + df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'folder'].iloc[0] + '-TXG.txt'
+                micro_name = anonymized_f_dir + '/' + df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'folder'].iloc[0] + '-TXM.txt'
+                
+                # slide processing
+                if len(openslide.open_slide(slide_path).associated_images) > 0:
+                    delete_associated_image(slide_path,'label')
+                    delete_associated_image(slide_path,'macro')
+                    replace_description(slide_path, '')
+                os.rename(slide_path, anonymized_f_path)
+
+                # report processing
+                if pd.isnull(df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'gross'].iloc[0]):
+                    print(f'gross report is nan on {slide_path}')
+                else:
+                    gross_report = df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'gross'].iloc[0]
+                    f = open(gross_name, 'w')
+                    f.write(gross_report)
+                    f.close()
+                if pd.isnull(df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'micro'].iloc[0]):
+                    print(f'micro report is nan on {slide_path}')
+                else:
+                    micro_report = df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'micro'].iloc[0]
+                    f = open(micro_name, 'w')
+                    f.write(micro_report)
+                    f.close()     
             
-            # slide processing
-            delete_associated_image(slide_path,'label')
-            delete_associated_image(slide_path,'macro')
-            replace_description(slide_path, anonymized_name)
-            os.rename(slide_path, anonymized_f_path)
-            
-            # report processing
-            gross_report = df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'gross'].iloc[0]
-            micro_report = df_anonymized.loc[df_anonymized['src_file'] == origin_name, 'micro'].iloc[0]
-            f = open(gross_name, 'w')
-            f.write(gross_report)
-            f.close()
-            f = open(micro_name, 'w')
-            f.write(micro_report)
-            f.close()
-            
-        except Exception as e:
-            print(f'Error {e} on {slide_path}')
+            except Exception as e:
+                print(f'Error {e} on {slide_path}')
+        else:
+            pass

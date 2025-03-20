@@ -53,8 +53,11 @@ You can obtain a CSV file containing anonymized information by specifying an XLS
 #### Input Example (ex. pit_before.xlsx)
 ```
    num  patient_num file_num           location operation  dye      gross             micro  \
-0   0        101        1               Breast  operation   HE   gross report1     micro report1
-1   1        101        2               Breast    biopsy    IHC  gross report2     micro report2
+0   0        101      101_1             Breast  operation   HE   gross report1     micro report1
+1   1        101      101_2             Breast  operation   HE   gross report1     micro report1
+2   2        101      101_3             Breast  operation  IHC   gross report1     micro report1
+3   3        102      102_1             Breast  operation   HE   gross report2     micro report2
+4   4        103      103_1             Breast   Biopsy    IHC   gross report3     micro report3
 ```
 
 #### Pseudonymization Code Example
@@ -68,13 +71,19 @@ python csv_file_generation.py \
 #### Output Example (ex. pit_after.csv)
 ```
     idx  src_folder src_file      gross             micro  \
-0   0       101        1      gross report1     micro report1
-1   1       101        2      gross report2     micro report2
+0   0       101      101_1    gross report1     micro report1
+1   1       101      101_2    gross report1     micro report1
+2   2       101      101_3    gross report1     micro report1
+3   3       102      102_1    gross report2     micro report2
+4   4       103      103_1    gross report3     micro report3
 ...
 
 folder                                  file  
 0  PIT-01-BROP-00001  PIT-01-BROP-00001-IMH-001.svs  
-1  PIT-01-BRBX-00001  PIT-01-BRBX-00001-IMI-002.svs
+1  PIT-01-BROP-00001  PIT-01-BROP-00001-IMH-002.svs
+2  PIT-01-BROP-00001  PIT-01-BROP-00001-IMI-001.svs
+3  PIT-01-BROP-00002  PIT-01-BROP-00002-IMH-001.svs
+4  PIT-01-BRBX-00001  PIT-01-BRBX-00001-IMI-001.svs
 ...
 ```
 
@@ -88,21 +97,23 @@ PIT_project/
       |    ├── pit_after.csv
       |    ├── PIT0
       |    |     ├── 101
-      |    |     |    ├── 1.svs
-      |    |     |    └── 2.svs
-      |    |     ├── 102
-      |    |     |    └── 1.svs
-          ...
-      ├── PIT_anonymized
-      |    ├── PIT0
-      |    ├── PIT1
-          ...
+      |    |     |    ├── 101_1.svs
+      |    |     |    ├── 101_2.svs
+      |    |     |    └── 101_3.svs
+      |    |     └── 102
+      |    |          └── 102_1.svs
+      |    └── PIT1
+      |          └── 103
+      |               └── 103_1.svs
+      └── PIT_anonymized
+           ├── PIT0
+           └── PIT1
 ```
 
 #### Anonymization Code Example
 ```bash
 python pit_data_anonymization.py \
-    --slide_path /PIT_project/PIT/ \
+    --slide_base /PIT_project/PIT/ \
     --csv_path /PIT_project/PIT/pit_after.csv \
     --anonymized_split /PIT_anonymized/
 ```
@@ -111,19 +122,25 @@ python pit_data_anonymization.py \
 ```
 PIT_project/
       ├── PIT
+      |    ├── pit_after.csv
       |    ├── PIT0
-      |    ├── PIT1
-          ...
-      ├── PIT_anonymized
-      |    ├── PIT0
-      |    |     ├── PIT-01-BROP-00001
-      |    |     |    ├── PIT-01-BROP-00001-IMH-001.svs
-      |    |     |    ├── PIT-01-BROP-00001-IMH-002.svs
-      |    |     |    ├── PIT-01-BROP-00001-TXG.txt
-      |    |     |    └── PIT-01-BROP-00001-TXM.txt
-      |    |     ├── PIT-01-BROP-00002
-      |    |     |    ├── PIT-01-BROP-00002-IMH-001.svs
-      |    |     |    ├── PIT-01-BROP-00002-TXG.txt
-      |    |     |    └── PIT-01-BROP-00002-TXM.txt
-          ...
+      |    └── PIT1
+      | 
+      └── PIT_anonymized
+           ├── PIT0
+           |     ├── PIT-01-BROP-00001
+           |     |    ├── PIT-01-BROP-00001-IMH-001.svs
+           |     |    ├── PIT-01-BROP-00001-IMH-002.svs
+           |     |    ├── PIT-01-BROP-00001-IMI-001.svs
+           |     |    ├── PIT-01-BROP-00001-TXG.txt
+           |     |    └── PIT-01-BROP-00001-TXM.txt
+           |     └── PIT-01-BROP-00002
+           |          ├── PIT-01-BROP-00002-IMH-001.svs
+           |          ├── PIT-01-BROP-00002-TXG.txt
+           |          └── PIT-01-BROP-00002-TXM.txt
+           └── PIT1
+                 └── PIT-01-BRBX-00001
+                      ├── PIT-01-BRBX-00001-IMI-001.svs
+                      ├── PIT-01-BRBX-00001-TXG.txt
+                      └── PIT-01-BRBX-00001-TXM.txt
 ```

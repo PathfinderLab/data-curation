@@ -19,8 +19,8 @@ def anonymize_dataframe(df):
         'IHC': 'IMI',
         'SS': 'IMS'
     }
-
-    # 매칭되지 않는 값이 있는지 확인
+    
+    # Check if there are any unmatched values
     if not df['location'].isin(location_dict.keys()).all():
         raise ValueError("Invalid value found in 'location' column")
     if not df['operation'].isin(operation_dict.keys()).all():
@@ -28,19 +28,23 @@ def anonymize_dataframe(df):
     if not df['dye'].isin(dye_dict.keys()).all():
         raise ValueError("Invalid value found in 'dye' column")
     
-    # patient_num을 1부터 시작하는 고유 번호로 변환 (5자리)
-    df['patient_anon'] = df['patient_num'].astype('category').cat.codes + 1
+    # Generate folder name
+    df['folder_prefix'] = 'PIT-01-' + df['location'].map(location_dict) + df['operation'].map(operation_dict)
+    
+    # Convert patient_num to a unique identifier starting from 1 for each folder_prefix (5 digits)
+    df['patient_anon'] = df.groupby('folder_prefix')['patient_num'].transform(lambda x: x.factorize()[0] + 1)
     df['patient_anon'] = df['patient_anon'].apply(lambda x: f"{x:05d}")
     
-    # 각 patient_num 그룹 내에서 file_num에 대한 고유 번호 생성 (3자리)
-    df['file_anon'] = df.groupby('patient_num').cumcount() + 1
+    df['folder'] = df['folder_prefix'] + '-' + df['patient_anon']
+    
+    # Generate file name
+    df['file_prefix'] = df['folder'] + '-' + df['dye'].map(dye_dict)
+    
+    # Convert file_num to a unique identifier starting from 1 for each file_prefix (3 digits)
+    df['file_anon'] = df.groupby('file_prefix')['file_num'].transform(lambda x: x.factorize()[0] + 1)
     df['file_anon'] = df['file_anon'].apply(lambda x: f"{x:03d}")
     
-    # folder 컬럼 생성
-    df['folder'] = 'PIT-01-' + df['location'].map(location_dict) + df['operation'].map(operation_dict) + '-' + df['patient_anon'].astype(str)
-    
-    # file 컬럼 생성
-    df['file'] = df['folder'] + '-' + df['dye'].map(dye_dict) + '-' + df['file_anon'].astype(str) + '.svs'
+    df['file'] = df['file_prefix'] + df['file_anon']
     
     return df
 
@@ -52,13 +56,13 @@ if __name__ == '__main__':
     xlsx_path = args.xlsx_path
     save_path = args.save_path
 
-    # 데이터 불러오기
+    # Load excel file 
     df = pd.read_excel(xlsx_path)
 
-    # 가명화 적용
+    # Generate anonymized dataframe
     df_anonymized = anonymize_dataframe(df)
     df_anonymized = df_anonymized.reset_index().rename(columns={"index": "idx", "patient_num": "src_folder", "file_num": "src_file", "report_gross": "gross", "report": "micro"})
     df_anonymized = df_anonymized[['idx', 'src_folder', 'src_file', 'folder', 'file', 'gross', 'micro']] 
     
-    # 데이터 저장
+    # Save csv file
     df_anonymized.to_csv(save_path, index=False)
