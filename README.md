@@ -52,12 +52,12 @@ You can obtain a CSV file containing anonymized information by specifying an XLS
 
 #### Input Example (ex. pit_before.xlsx)
 ```
-   num  patient_num file_num           location operation  dye      gross             micro  \
-0   0        101      101_1             Breast  operation   HE   gross report1     micro report1
-1   1        101      101_2             Breast  operation   HE   gross report1     micro report1
-2   2        101      101_3             Breast  operation  IHC   gross report1     micro report1
-3   3        102      102_1             Breast  operation   HE   gross report2     micro report2
-4   4        103      103_1             Breast   Biopsy    IHC   gross report3     micro report3
+   num  patient_num file_num  location   operation    dye        gross            micro  
+0   0       101       101_1    Breast    operation    HE    gross report1    micro report1
+1   1       101       101_2    Breast    operation    HE    gross report1    micro report1
+2   2       101       101_3    Breast    operation    IHC   gross report1    micro report1
+3   3       102       102_1    Breast    operation    HE    gross report2    micro report2
+4   4       103       103_1    Breast     Biopsy      IHC   gross report3    micro report3
 ```
 
 #### Pseudonymization Code Example
@@ -70,21 +70,12 @@ python csv_file_generation.py \
 
 #### Output Example (ex. pit_after.csv)
 ```
-    idx  src_folder src_file      gross             micro  \
-0   0       101      101_1    gross report1     micro report1
-1   1       101      101_2    gross report1     micro report1
-2   2       101      101_3    gross report1     micro report1
-3   3       102      102_1    gross report2     micro report2
-4   4       103      103_1    gross report3     micro report3
-...
-
-folder                                  file  
-0  PIT-01-BROP-00001  PIT-01-BROP-00001-IMH-001.svs  
-1  PIT-01-BROP-00001  PIT-01-BROP-00001-IMH-002.svs
-2  PIT-01-BROP-00001  PIT-01-BROP-00001-IMI-001.svs
-3  PIT-01-BROP-00002  PIT-01-BROP-00002-IMH-001.svs
-4  PIT-01-BRBX-00001  PIT-01-BRBX-00001-IMI-001.svs
-...
+   idx  src_folder src_file        folder                      file                     gross             micro
+0   0       101      101_1    PIT-01-BROP-00001    PIT-01-BROP-00001-IMH-001.svs    gross report1     micro report1    
+1   1       101      101_2    PIT-01-BROP-00001    PIT-01-BROP-00001-IMH-002.svs    gross report1     micro report1
+2   2       101      101_3    PIT-01-BROP-00001    PIT-01-BROP-00001-IMI-001.svs    gross report1     micro report1
+3   3       102      102_1    PIT-01-BROP-00002    PIT-01-BROP-00002-IMH-001.svs    gross report2     micro report2
+4   4       103      103_1    PIT-01-BRBX-00001    PIT-01-BRBX-00001-IMI-001.svs    gross report3     micro report3
 ```
 
 ### 2) Anonymization
