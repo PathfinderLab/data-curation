@@ -38,13 +38,13 @@ def anonymize_dataframe(df):
     df['folder'] = df['folder_prefix'] + '-' + df['patient_anon']
     
     # Generate file name
-    df['file_prefix'] = df['folder'] + '-' + df['dye'].map(dye_dict)
+    df['file_prefix'] = df['folder'] + '-' + df['dye'].map(dye_dict) + '-'
     
     # Convert file_num to a unique identifier starting from 1 for each file_prefix (3 digits)
     df['file_anon'] = df.groupby('file_prefix')['file_num'].transform(lambda x: x.factorize()[0] + 1)
     df['file_anon'] = df['file_anon'].apply(lambda x: f"{x:03d}")
     
-    df['file'] = df['file_prefix'] + df['file_anon']
+    df['file'] = df['file_prefix'] + df['file_anon'] + '.svs'
     
     return df
 

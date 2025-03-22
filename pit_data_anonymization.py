@@ -1,4 +1,5 @@
 from tqdm.auto import tqdm
+from PIL import Image
 import pandas as pd
 import tifffile, struct, argparse, os, glob, openslide
 
@@ -127,6 +128,8 @@ if __name__=='__main__':
     slide_base = args.slide_base
     csv_path = args.csv_path
     anonymized_split= args.anonymized_split
+
+    Image.MAX_IMAGE_PIXELS = None
 
     slide_paths = glob.glob(os.path.join(slide_base,'PIT*','*','*.svs'))
     print(f'Found {len(slide_paths)} slides')
